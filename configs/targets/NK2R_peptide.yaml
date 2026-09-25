@@ -1,0 +1,46 @@
+# PDC 2026: NK2R 多肽激动剂设计 —— binder-forge 首个多肽靶点
+target:
+  id: NK2R-PDC
+  name: NK2R_TACR2
+  uniprot: P21452               # Neurokinin-2 receptor, Class A GPCR
+  sequence_source: uniprot      # 全长序列; 官方 AF3 预筛即用全长
+  structure: null               # prepare 阶段: AF3/Boltz-2 复合物建模(含 Gα P50148)
+  membrane_protein: true        # GPCR: 需膜碰撞检查, 不做截短结晶 construct
+  cofactors:
+    g_alpha: P50148             # 官方预筛含 Gα; 激动剂设计须用活性态复合物
+
+counter_targets:                # 负设计(选择性双倍权重, 从 Day1 纳入)
+  - { id: NK1R, uniprot: P25103 }
+  - { id: NK3R, uniprot: P35408 }
+selectivity_score:              # SRS = Score_NK2R - max(Score_NK1R, Score_NK3R)
+  enabled: true
+  weight_in_final: 0.35
+
+epitope:
+  mode: manual                  # 来自药化猩球攻略 + 2026 NK2R 结构工作
+  orthosteric_pocket: ["Y280", "N97", "Y289", "Y266", "F293"]   # 入口+深口袋
+  selectivity_regions: ["D175", "Q176", "K180"]                 # ECL2/ECL3 差异区
+  outer_rim: ["T24", "A25", "F26"]
+  avoid: []                     # 待 construct 确认后填(糖基化/突变位点)
+
+modality:
+  primary: peptide              # 与长江杯 VHH 模态互补练兵
+  binder_length: [10, 40]       # 赛规: ≤40 天然 aa
+  sweet_spot: [12, 25]          # 环肽甜区(2025 榜单洞察)
+  cyclization: [disulfide, head_to_tail]   # 头部设计多为环肽
+  natural_similarity:           # 赛规: 与 NKA (HKTDSFVGLM) mmseqs2 相似度 <30%
+    reference: HKTDSFVGLM
+    max_identity: 0.30
+    tool: mmseqs2
+
+budget:
+  generate_total: 5000          # 多肽生成成本低, 放大池子
+  pipeline_mix:
+    boltzgen_peptide: 0.45      # peptide-anything 协议
+    bindcraft_peptide: 0.25     # BindCraft 肽适配(MDM2/WDR5 已验证可行)
+    rfdiffusion_peptide: 0.20
+    pharmacophore_mimic: 0.10   # NKA/合成激动剂 interaction motif 骨架跃迁
+  validation_predictors: [af3, boltz2]   # AF3 对齐官方预筛(晋级条件!) + Boltz-2 交叉
+  submit_quota: null            # 待 2026 规则确认(2025 届 AF3 预筛 Top100 进合成)
+  submit_early: true            # 相同序列先到先得 -> 备好即交
+  diversity_cluster_tm: 0.5     # 短肽 TM 区分度低, 改用序列+骨架双重聚类

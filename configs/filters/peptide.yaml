@@ -1,0 +1,24 @@
+# 多肽专项过滤 —— 继承 default.yaml, 按短肽/GPCR 特性调整
+extends: default.yaml
+
+peptide_specific:
+  length: [10, 40]              # 赛规硬上限 40 aa
+  natural_similarity_max: 0.30  # vs NKA HKTDSFVGLM (mmseqs2), 硬淘汰
+  disallow_exact_duplicate_of: ["round1_submissions", "public_leaderboard"]  # 先到先得条款
+
+folding_confidence_override:    # 短肽 pLDDT 普遍偏低且信息量弱, 权重下移
+  pLDDT_binder: { screen: 60, select: 70 }
+  i_pTM:        { screen: 0.5, select: 0.75 }   # 官方预筛主指标, 对齐 AF3 口径
+  i_PAE:        { screen: 0.35, select: 0.25 }
+
+gpcr_specific:
+  membrane_clash_check: true    # 肽段不得插入膜平面
+  require_pocket_engagement: false   # A/B 路线开, C 路线(ECL)关 -> 按 build 标签区分
+  counter_screen:
+    targets: [NK1R, NK3R]       # 负设计硬指标
+    srs_min: 0.1                # SRS = Score_NK2R - max(off-target) 精选门槛
+
+developability_override:
+  forbid_free_cys: false        # 多肽允许二硫键环化(头部设计多为环肽)
+  cys_policy: "even_count_only" # 奇数 Cys 淘汰(游离巯基风险)
+  note: "多 Cys/甲硫氨酸富集序列标注合成与氧化风险, 人工复核"
