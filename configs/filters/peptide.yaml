@@ -1,24 +1,35 @@
 # 多肽专项过滤 —— 继承 default.yaml, 按短肽/GPCR 特性调整
+# 阈值经 NK2R PDC 2025 榜单(142 条实测)校准, 见 docs/analysis/nk2r_2025_calibration_report.md
 extends: default.yaml
 
 peptide_specific:
-  length: [10, 40]              # 赛规硬上限 40 aa
+  length: [8, 40]               # 赛规硬上限 40; 校准甜区见下
+  length_sweet_spot: [8, 15]    # 校准: 活性分子中位 10 aa, >17 aa 几乎无活性且难合成
   natural_similarity_max: 0.30  # vs NKA HKTDSFVGLM (mmseqs2), 硬淘汰
   disallow_exact_duplicate_of: ["round1_submissions", "public_leaderboard"]  # 先到先得条款
 
-folding_confidence_override:    # 短肽 pLDDT 普遍偏低且信息量弱, 权重下移
-  pLDDT_binder: { screen: 60, select: 70 }
-  i_pTM:        { screen: 0.5, select: 0.75 }   # 官方预筛主指标, 对齐 AF3 口径
+gatekeeper_alignment:           # 官方 AF3 预筛(晋级条件!)已还原, 口径必须对齐
+  iptm_complex_min: 0.5         # 实测选中最低 ~0.5, 中位 0.91
+  plddt_peptide_min: 60         # 实测选中中位 84 (落选 40)
+  nka_displacement_check: true  # 三元竞争: 肽须把 NKA 挤出 pocket (iptm_AD 低)
+  note: "validate 阶段用与官方一致的 AF3 口径复算以上三项"
+
+folding_confidence_override:    # 短肽 pLDDT 信息量弱, 以复合物指标为主
+  pLDDT_binder: { screen: 60, select: 80 }
+  i_pTM:        { screen: 0.6, select: 0.8 }   # 校准: select 对齐守门员口径
   i_PAE:        { screen: 0.35, select: 0.25 }
+  ranking_score_select: 0.8     # 校准: iptm≥0.8 & rs≥0.8 组合富集 2.4x (15.2% vs 6.3%)
 
 gpcr_specific:
   membrane_clash_check: true    # 肽段不得插入膜平面
   require_pocket_engagement: false   # A/B 路线开, C 路线(ECL)关 -> 按 build 标签区分
   counter_screen:
-    targets: [NK1R, NK3R]       # 负设计硬指标
+    targets: [NK1R, NK3R]       # 负设计硬指标(R2 选择性双倍权重)
     srs_min: 0.1                # SRS = Score_NK2R - max(off-target) 精选门槛
+    note: "2025 数据: hit 中已有个案 NC 激活 63% — 强活性≠选择性, 负设计 Day1 前置"
 
 developability_override:
-  forbid_free_cys: false        # 多肽允许二硫键环化(头部设计多为环肽)
-  cys_policy: "even_count_only" # 奇数 Cys 淘汰(游离巯基风险)
-  note: "多 Cys/甲硫氨酸富集序列标注合成与氧化风险, 人工复核"
+  forbid_free_cys: false        # 多肽允许二硫键环化(校准: 26% 活性 vs 0.8% 无活性)
+  cys_policy: "even_count_only" # 校准: 奇数 Cys 序列全部难合成弃测
+  length_synthesizability: 30   # 校准: 弃测序列全部 34-39 aa -> >30 aa 人工复核
+  note: "长疏水段/多 Cys 标注合成与氧化风险, 人工复核"

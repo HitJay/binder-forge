@@ -1,0 +1,14 @@
+{
+  "prescreen_gate": "官方预筛近似硬门槛: iptm_AB 与 ranking_score(见 AUC 表)",
+  "recommended_peptide_filter": {
+    "iptm_complex_screen": 0.6,
+    "iptm_complex_select": 0.8,
+    "ranking_score_select": 0.8,
+    "note": "预筛是晋级条件; 实测集内指标区分度为保守下界, 仍建议双预测器一致"
+  },
+  "sequence_design": {
+    "cyclization": "活性分子显著富集二硫键环肽(C>=2)",
+    "length_sweet_spot": "活性分子中位长度见 cell5",
+    "synthesizability": "多Cys/长疏水段有难合成弃测风险, 需前置过滤"
+  }
+}
