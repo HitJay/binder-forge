@@ -1,0 +1,15 @@
+# VHH(纳米抗体)专项过滤 —— 继承 default.yaml 并叠加抗体可开发性检查
+extends: default.yaml
+
+vhh_specific:
+  framework_integrity: true     # 框架区应与种系 VHH 高度一致(仅 CDR 重设计)
+  cdr3_length: [8, 22]          # 合理 CDR 长度分布
+  forbid_unpaired_cys: true     # 除框架保守二硫键外不允许额外 Cys
+  humanness_min: null           # OASis / Hu-mAb 人源化评分, 治疗导向靶点启用
+  liability_scan:
+    deamidation: ["NG", "NS"]   # CDR 内高危
+    isomerization: ["DG"]
+    n_glycosylation: "N-X-S/T"  # 若湿实验为哺乳动物细胞表达则硬淘汰
+    oxidation: ["M"]            # CDR 内 Met 计数告警(非硬淘汰)
+  expression_system: ecoli      # 待官方确认后切换: ecoli | yeast | mammalian
+  refold_predictor_note: "VHH-抗原复合物建议 Boltz-2/Chai-1 复折, AF2 对 CDR 环置信度常偏低"

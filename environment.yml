@@ -1,0 +1,20 @@
+# 基础编排环境(仅 funnel 编排层; 各设计 pipeline 用独立 env, 见 scripts/setup_env.sh)
+name: binder-forge
+channels: [conda-forge, bioconda, defaults]
+dependencies:
+  - python=3.11
+  - pip
+  - biopython
+  - pandas
+  - numpy
+  - scipy
+  - pyyaml
+  - typer          # CLI
+  - duckdb         # Design Registry
+  - scikit-learn   # 聚类
+  - matplotlib
+  - seaborn
+  - tmalign        # TM-score 聚类(也可用 USalign)
+  - pip:
+      - loguru
+      - pydantic

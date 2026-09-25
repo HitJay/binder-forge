@@ -1,0 +1,27 @@
+# 通用过滤阈值 —— 综合 BindCraft(Nature 2025)/BoltzGen(2025)/历届 Adaptyv 赛事实践
+# 分两层: screen(初筛, 放宽) 与 select(精选提交, 收紧)
+
+folding_confidence:
+  pLDDT_binder:        { screen: 75,  select: 80 }
+  i_pTM:               { screen: 0.5, select: 0.8 }
+  i_PAE:               { screen: 0.35, select: 0.25 }   # 越小越好(注意方向)
+  monomer_rmsd_A:      { screen: 3.0, select: 2.0 }     # 设计结构 vs 复折结构
+  cross_predictor:
+    min_agreeing: 2            # ≥2 家独立预测器一致, 硬性要求
+    predictors: [boltz2, af2multimer]
+
+interface_physics:
+  shape_complementarity: { screen: 0.55, select: 0.60 } # Rosetta sc
+  interface_hbonds:      { screen: 2,    select: 3 }
+  buried_sasa_A2:        { screen: 800,  select: 1000 }
+  dG_separated:          { screen: -20,  select: -30 }  # Rosetta ddG, 排序参考
+
+developability:                # 表达是湿实验第一关 —— 以下为硬淘汰项
+  max_surface_hydrophobic_frac: 0.35
+  forbid_free_cys: true        # 奇数/游离 Cys 直接淘汰
+  forbid_motifs: ["NG", "NS", "DG", "N-X-S/T"]   # 去酰胺/异构化/N-糖基化热点
+  max_SAP_patch: null          # 聚集倾向评分, 按工具补阈值
+
+novelty:
+  min_mutations_vs_known_binders: 10   # Adaptyv 惯例; 按长江杯赛规调整
+  max_identity_vs_pdb: 0.9

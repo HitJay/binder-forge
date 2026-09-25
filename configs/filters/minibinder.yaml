@@ -1,0 +1,10 @@
+# minibinder 专项过滤 —— 继承 default.yaml
+extends: default.yaml
+
+minibinder_specific:
+  length: [60, 150]             # 超出范围淘汰(Adaptyv 惯例 <250 aa, 收紧以提高表达)
+  forbid_any_cys: true          # minibinder 通常不含二硫键, Cys 全禁
+  helical_bundle_preferred: false  # 不预设 fold, 以聚类多样性为准
+  solubility:
+    use_mpnn_sol_hint: true     # 生成阶段优先 MPNNsol 产物(BindCraft 默认)
+    max_surface_hydrophobic_frac: 0.30   # 比通用层更严

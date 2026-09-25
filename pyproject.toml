@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "binder-forge"
+version = "0.1.0"
+description = "End-to-end funnel for de novo protein binder design (BindCraft / RFantibody / BoltzGen orchestration)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "biopython",
+    "pandas",
+    "numpy",
+    "scipy",
+    "pyyaml",
+    "typer",
+    "duckdb",
+    "scikit-learn",
+    "loguru",
+    "pydantic",
+]
+
+[project.scripts]
+forge = "binder_forge.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]

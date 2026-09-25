@@ -1,0 +1,31 @@
+# 靶点配置模板 —— 每个赛事靶点一个文件
+target:
+  id: T01                       # 赛事靶点编号
+  name: example_antigen
+  sequence: ""                  # 若官方仅给序列, 留结构为空, prepare 阶段先预测
+  structure: null               # data/targets/T01.pdb (实验结构优先)
+  structure_source: pdb         # pdb | afdb | boltz2 | af3server
+  chains: [A]                   # 参与结合的链; 无关链在 prepare 阶段去除
+  truncate:                     # 大靶点截断到结合域, 节省算力并避免假象
+    enabled: false
+    keep_residues: []           # 例: "A:1-250"
+
+epitope:                        # RFantibody 必需; 其他管线可选(steering)
+  mode: auto                    # auto(表面斑块扫描) | manual
+  hotspot_residues: []          # 例: ["A45","A102","A157"]
+  avoid_residues: []            # 糖基化位点/柔性环等应避开的表面
+
+modality:
+  primary: vhh                  # vhh | minibinder —— 按靶点特性决策(见调研报告 Phase1)
+  secondary: minibinder         # 对冲模态
+  binder_length: [110, 130]     # VHH ~110-130; minibinder 60-150
+
+budget:
+  generate_total: 3000          # 该靶点候选生成总量(三条管线合计)
+  pipeline_mix:                 # 生成配额分配
+    boltzgen: 0.4
+    bindcraft: 0.3
+    rfantibody: 0.3
+  validation_predictors: [boltz2, af2multimer]   # 强制双家一致
+  submit_quota: 100             # 该靶点最终提交条数(待官方确认每队上限)
+  diversity_cluster_tm: 0.6     # TM-score 聚类阈值, 保证拓扑多样性
