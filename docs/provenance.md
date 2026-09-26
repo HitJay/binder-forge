@@ -73,9 +73,11 @@ reviewer 的核心动作就是**拿这行的 sha256 去和磁盘当前文件重�
 ## 5. Registry schema 扩展
 
 新增列（对旧库做 `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`，旧行 `run_id` 为 NULL，
-reviewer 对其报 WARN 而非 BLOCK，保证历史数据不炸）：
+reviewer 对其报 WARN 而非 BLOCK，保证历史数据不炸）。实现见 `src/binder_forge/db/store.py`
+的 `MIGRATIONS`：`toolchain_license`（初版 schema 漏了这一列，顺带补上）+ 下列 8 列：
 
 ```sql
+toolchain_license   TEXT,      -- 补初版遗漏
 run_id             TEXT,
 stage              TEXT,
 code_rev           TEXT,
@@ -93,11 +95,24 @@ manifest_uri       TEXT
 1. **谁产出谁登记**：适配器 `collect()` 内必须调 `ctx.register_artifact()`，未登记产物视为无效。
 2. **只追加不改**：`provenance.jsonl` 仅 append；`manifest.json` 在 stage 结束时写入一次，此后只读。
 3. **哈希即证据**：所有输入与产物在落盘时算 sha256，事后只比对不信任。
-4. **目录封存**：stage 结束写入 `ended_at` 后，该 run 目录转为只读（HPC 侧 `chmod a-w`）。
+4. **目录封存**：stage 结束写入 `ended_at` 后，该 run 目录转为不可写。
+   ⚠️ 实现注记：Windows **不强制**目录只读位（OS 层面形同虚设），所以封存的真正保证来自
+   **代码层拒绝写入**（`RunContext._assert_writable`，封存后 `register_artifact` 直接抛错）
+   加上 reviewer 的哈希对账（R9）。`seal()` 里的 chmod 只是尽力而为的额外提示。
 5. **代码可 pin**：`code_rev` 缺省或 `code_dirty=true` 的运行，不得进入 `export`（WARN 升级为 BLOCK 需人工确认）。
 
 ## 7. 与 HPC 的配合
 
 `docs/hpc_setup.md` 的 Slurm 模板输出目录改为 `$SCRATCH/binder/runs/<target>/<run_id>`，
 sbatch 脚本在 prologue 写 `manifest.started_at`、epilogue 写 `ended_at`，
-job id 写回 manifest——这样"哪个作业跑了哪批设计"无需再靠日志人肉对。
+job id 写回 manifest（`RunContext.start(..., scheduler_job_id=$SLURM_JOB_ID)`）——
+这样"哪个作业跑了哪批设计"无需再靠日志人肉对。
+
+## 8. 落地状态（P0，2026-09-26）
+
+已实现并提交：`src/binder_forge/provenance/run.py`（`RunContext`：`start` / `open` /
+`snapshot_input` / `register_artifact` / `write_env_lock` / `seal` / `verify_artifacts`）、
+`DesignRecord` 溯源字段、`Registry` 幂等迁移与 upsert、`tests/test_provenance.py`（7 项）。
+
+主函数刻意没做 `pip freeze`（跨 env/HPC 易失败），`env.lock.txt` 只记查得到的版本。
+下一阶段 P1 见 `docs/reviewer.md`。

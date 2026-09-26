@@ -36,6 +36,16 @@ class DesignRecord(BaseModel):
     toolchain_license: str = "permissive"   # permissive | pyrosetta-dependent(商用需授权)
     predictors_agreeing: int = 0
 
+    # 溯源字段(docs/provenance.md): 由 RunContext 在产出时填写
+    run_id: str | None = None
+    stage: str | None = None
+    code_rev: str | None = None
+    inputs_hash: str | None = None
+    artifact_hashes: dict = Field(default_factory=dict)   # {relpath: sha256}
+    command: str | None = None
+    predictor_outputs: dict = Field(default_factory=dict)  # {predictor: 原始输出路径}
+    manifest_uri: str | None = None
+
     # filter/rank 阶段填充
     passed_screen: bool = False
     passed_select: bool = False

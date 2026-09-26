@@ -98,7 +98,8 @@ forge export    --target configs/targets/T01.yaml --out runs/T01/submission
 | 编排 / 分析 / 过滤配置 / 校准分析 | **本机 Windows** | ✅ 已完成 |
 | 生成管线（BoltzGen / BindCraft / RFantibody） | **HPC / 云** | ⏳ 建库中（`docs/hpc_setup.md`）|
 | 复折验证（AF3 / Boltz-2） | **HPC / 云** | ⏳ |
-| 产物溯源 + reviewer 校验 | **本机 Windows** | ⏳ 待实现（`docs/provenance.md` / `docs/reviewer.md`）|
+| 产物溯源骨架（`provenance/run.py`，P0） | **本机 Windows** | ✅ 已完成 |
+| reviewer 校验器（P1–P3） | **本机 Windows** | ⏳ 待实现（`docs/reviewer.md`）|
 
 > 本机结论：Windows + RTX 5060(8GB) 不适合跑 GPU 管线——CUDA torch 轮子下载受阻、
 > PyRosetta 无 Windows 版、boltz 要求 py<3.13。本机保留编排与数据分析职能，
