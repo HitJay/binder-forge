@@ -65,13 +65,22 @@ forge rank      --target configs/targets/T01.yaml --quota 100 --cluster-tm 0.6
 forge export    --target configs/targets/T01.yaml --out runs/T01/submission
 ```
 
-## 设计原则
+## 项目策略：Rosetta-free（硬性，非偏好）
 
-- **Rosetta-free 默认栈（公司内可直接复用）**：BoltzGen(MIT) + RFdiffusion(BSD-3) + ProteinMPNN(MIT)
-  + Boltz-2(MIT) + OpenMM(MIT/LGPL) + freesasa(MIT)。
-  Rosetta 专属指标（sc / ddG / SAP）与 BindCraft 默认关闭，取得 UW 商业授权后用
-  `configs/filters/rosetta_profile.yaml` 覆盖启用，并在 `DesignRecord.toolchain_license`
-  标记 `pyrosetta-dependent`。详见 `docs/licenses.md`。
+成果需在公司内直接复用，而 Rosetta / PyRosetta 商业使用需 UW 付费授权。
+因此**默认技术栈不含任何 Rosetta 依赖**：
+
+- 生成：BoltzGen（MIT）、RFdiffusion（BSD-3，含权重）
+- 序列设计：ProteinMPNN（MIT）
+- 复折 / 亲和力：Boltz-2（MIT）、AF2（Apache-2.0 / CC-BY）
+- 结构松弛与界面物理：**OpenMM（MIT/LGPL）+ freesasa（MIT）**，替代 FastRelax / InterfaceAnalyzer
+- Rosetta 专属指标（sc / ddG / SAP）与 BindCraft **默认关闭**，仅在取得 UW 授权后由
+  `configs/filters/rosetta_profile.yaml` 显式启用，并在 `DesignRecord.toolchain_license`
+  标记 `pyrosetta-dependent`，便于按许可分类处置
+
+**该策略由测试强制执行**：`tests/test_no_rosetta.py` 断言源码无 pyrosetta import、
+默认配置未启用 Rosetta 指标。改动违反策略会直接测试失败。
+许可细节与申请流程见 `docs/licenses.md`。
 - **Adapter 模式**：不重写外部工具，统一契约 = 序列 + 结构 + 指标 JSON；新管线只需新增一个适配器。
 - **Config-driven**：靶点即配置，换靶点/换任务不改代码——这是复用性的基础。
 - **Design Registry**：每条设计 UUID + 血缘（pipeline/seed/config hash）+ 全指标，落 DuckDB，赛后复盘与 Benchmark 复用的核心资产。

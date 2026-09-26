@@ -48,17 +48,19 @@ echo "== 4. mmseqs2(PDC 相似度官方口径) =="
 sudo apt-get update -qq && sudo apt-get install -y -qq mmseqs2
 mmseqs version
 
-echo "== 5. BindCraft(需 PyRosetta 学术许可) =="
-mkdir -p "$BINDER_WSL" && cd "$BINDER_WSL"
-[ -d BindCraft ] || git clone --depth 1 https://github.com/martinpacesa/BindCraft
-# 前置: 到 https://els2.comotion.uw.edu/product/pyrosetta 申请学术许可,
-#       下载 PyRosetta .whl 到 ~/binder/, 然后:
-#   cd ~/binder/BindCraft && bash install_bindcraft.sh --cuda 12.8 --pkg_manager conda
-echo "  (待人工补 PyRosetta 许可后执行 install_bindcraft.sh)"
-
-echo "== 6. RFantibody(VHH 生成) =="
-[ -d RFantibody ] || git clone --depth 1 --recursive https://github.com/RosettaCommons/RFantibody
-echo "  (按 external/RFantibody/README.md 构建; 官方提供 apptainer 镜像更省事)"
+echo "== 5. Rosetta 系工具: 默认跳过(项目策略: Rosetta-free) =="
+# ⚠️ BindCraft / RFantibody 依赖 PyRosetta, 商业使用需 UW 付费授权。
+# 项目默认栈坚持 Rosetta-free(公司内可直接复用), 这里默认不安装。
+# 确需使用(学术期, 已取得许可)时显式加 --with-rosetta:
+if [[ "${1:-}" == "--with-rosetta" ]]; then
+  mkdir -p "$BINDER_WSL" && cd "$BINDER_WSL"
+  [ -d BindCraft ] || git clone --depth 1 https://github.com/martinpacesa/BindCraft
+  [ -d RFantibody ] || git clone --depth 1 --recursive https://github.com/RosettaCommons/RFantibody
+  echo "  已克隆 BindCraft / RFantibody; 需自行放入 PyRosetta .whl 后执行 install_bindcraft.sh"
+  echo "  并注意: 产出设计会被标记为 toolchain_license=pyrosetta-dependent"
+else
+  echo "  跳过(默认)。如需: bash $0 --with-rosetta"
+fi
 
 echo "== 7. 在本仓库注册 WSL 环境路径 =="
 cat > "$BINDER_WIN/envs_wsl.env" <<EOF

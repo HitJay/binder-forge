@@ -11,8 +11,8 @@
 | NKA 相似度检查 | PDC 规则过滤 | ✅ 可用 | `filters/similarity.py`，回归测试 6/6（`tests/test_similarity.py`）|
 | torch cu128 + boltz (venv `envs/boltz`) | Boltz-2 复折验证 | 🔄 收尾中 | 见下方"网络踩坑" |
 | boltzgen | 生成管线 C（多肽/nanobody） | 📦 已克隆 | `external/boltzgen`，`pip install boltzgen`（PyPI, py≥3.11） |
-| BindCraft | 生成管线 B | 📦 已克隆 | `external/BindCraft`；**PyRosetta 无 Windows 版** → WSL2/Linux |
-| RFantibody | 生成管线 A（VHH） | 📦 已克隆 | `external/RFantibody`；RFdiffusion 栈 → WSL2/Linux |
+| BindCraft | ~~生成管线 B~~ | 🚫 策略外 | **Rosetta-free 策略下默认不装**（`bash scripts/wsl_setup.sh --with-rosetta` 才克隆）|
+| RFantibody | VHH 生成模块 | 🚫 策略外 | 生成部分可商用，但官方 scoring 用 PyRosetta → 改用 `validate/physics.py` |
 | mmseqs2 | NKA 相似度官方口径 | ⚠️ 下载受阻 | GitHub release CDN 不可达（见下）；Biopython 近似口径已兜底 |
 | AF3 | 官方预筛同款验证 | 🌐 用网页版 | AlphaFold Server 免装本地 |
 
