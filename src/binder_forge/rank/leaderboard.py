@@ -13,12 +13,13 @@ from __future__ import annotations
 from binder_forge.design.base import DesignRecord
 
 # 打分权重(精选层); 可按 Phase 复盘结果调整
+# ⚠️ 全 Rosetta-free: 不含 Rosetta sc / ddG(见 configs/filters/rosetta_profile.yaml)
 WEIGHTS = {
     "i_pTM_mean": 0.30,           # 多家预测器平均
     "i_PAE_mean_inv": 0.20,       # 取倒数归一
     "pLDDT_binder": 0.15,
-    "shape_complementarity": 0.15,
-    "dG_separated_norm": 0.10,
+    "buried_sasa_norm": 0.15,     # freesasa 埋藏面积, 替代 Rosetta sc
+    "boltz2_affinity_prob": 0.10, # Boltz-2 结合概率, 亲和力代理(替代 ddG)
     "predictors_agreeing": 0.10,  # 一致家数加成
 }
 

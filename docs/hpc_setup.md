@@ -22,7 +22,9 @@ source $HOME/miniconda/etc/profile.d/conda.sh
 |---|---|---|
 | `boltz` | `pip install torch --index-url .../cu128 && pip install boltz` | Boltz-2 复折验证（i_pTM/i_PAE/pLDDT + affinity）|
 | `boltzgen` | `pip install torch && pip install boltzgen` + 权重下载 | 生成：多肽 / nanobody / minibinder |
-| `bindcraft` | `bash install_bindcraft.sh --cuda 12.8 --pkg_manager conda`（需 PyRosetta 许可）| 生成：minibinder |
+| `rfdiffusion` | `pip install -r requirements.txt` + 权重下载（BSD-3，含权重）| 生成：骨架（配 ProteinMPNN）|
+| `physics` | `pip install openmm openmmforcefields freesasa` | Rosetta-free 松弛 + 埋藏面积（替代 FastRelax/InterfaceAnalyzer）|
+| `bindcraft` | `bash install_bindcraft.sh --cuda 12.8`（需 PyRosetta 授权）| **可选**：默认关闭，仅 Rosetta 授权后启用 |
 | `rfantibody` | 按 README 构建（提供 apptainer 镜像）| 生成：VHH（需表位 hotspot）|
 | `mmseqs2` | `conda install -c bioconda mmseqs2` | PDC 相似度官方口径 |
 | `colabdesign`(可选) | `pip install colabdesign` | AF2 系复折/幻觉 |

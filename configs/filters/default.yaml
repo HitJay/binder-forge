@@ -10,11 +10,15 @@ folding_confidence:
     min_agreeing: 2            # ≥2 家独立预测器一致, 硬性要求
     predictors: [boltz2, af2multimer]
 
-interface_physics:
-  shape_complementarity: { screen: 0.55, select: 0.60 } # Rosetta sc
-  interface_hbonds:      { screen: 2,    select: 3 }
-  buried_sasa_A2:        { screen: 800,  select: 1000 }
-  dG_separated:          { screen: -20,  select: -30 }  # Rosetta ddG, 排序参考
+interface_physics:          # 全 Rosetta-free 口径: freesasa + OpenMM + Boltz-2
+  buried_sasa_A2:        { screen: 800,  select: 1000 }   # freesasa (MIT)
+  interface_hbonds:      { screen: 2,    select: 3 }      # 几何判定(NeighborSearch)
+  min_interface_energy:  { screen: null, select: null }   # OpenMM 最小化界面能, 仅相对排序
+  boltz2_affinity_prob:  { screen: 0.3,  select: 0.5 }    # Boltz-2 结合概率, 亲和力代理
+  # ── Rosetta 依赖项(默认关闭) ──────────────────────────
+  # 商用需 UW/RosettaCommons 付费授权; 取得授权后用 configs/filters/rosetta_profile.yaml 覆盖启用
+  shape_complementarity: { screen: 0.55, select: 0.60, enabled: false }   # Rosetta sc
+  dG_separated:          { screen: -20,  select: -30,  enabled: false }   # Rosetta ddG
 
 developability:                # 表达是湿实验第一关 —— 以下为硬淘汰项
   max_surface_hydrophobic_frac: 0.35

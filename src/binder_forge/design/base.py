@@ -32,7 +32,8 @@ class DesignRecord(BaseModel):
     structure_path: str | None = None   # runs/<target>/structures/<id>.pdb
 
     # validate 阶段填充
-    metrics: dict = Field(default_factory=dict)   # pLDDT/i_pTM/i_PAE/RMSD/sc/ddG/...
+    metrics: dict = Field(default_factory=dict)   # pLDDT/i_pTM/i_PAE/RMSD/buriedSASA/boltz2_prob/...
+    toolchain_license: str = "permissive"   # permissive | pyrosetta-dependent(商用需授权)
     predictors_agreeing: int = 0
 
     # filter/rank 阶段填充

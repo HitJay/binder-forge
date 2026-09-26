@@ -23,7 +23,21 @@
 - **商用 / 以公司主体参赛**：需 Rosetta 商业授权（UW CoMotion / RosettaCommons 付费），否则走下面的无 Rosetta 路线。
 - ⚠️ **设计产物本身的 IP 归属与工具许可通常分离**，但是否受"衍生品条款"约束需查具体许可文本或咨询法务——此处不作断言。
 
-## 3. 商用干净的替代栈（推荐给未来转化场景）
+## 3. 项目决策（2026-09-26）：默认栈 = 全 Rosetta-free
+
+用户目标含"公司内后续复用"，因此 binder-forge **默认不依赖 PyRosetta**：
+
+| 环节 | 默认实现（可商用） | 可选 Rosetta 增强 |
+|---|---|---|
+| 生成 | BoltzGen（MIT）、RFdiffusion（BSD-3 含权重）| BindCraft（46.3% 平均命中率，需授权）|
+| VHH 生成 | RFantibody 生成模块（代码 MIT；权重源自 RFdiffusion BSD-3）| RFantibody 自带 Rosetta scoring |
+| 序列设计 | ProteinMPNN（MIT）| — |
+| 复折 / 亲和力 | Boltz-2（MIT）+ AF2（Apache-2.0 / CC-BY）| — |
+| 结构松弛 | OpenMM（MIT/LGPL）+ Amber ff14SB | FastRelax |
+| 界面物理 | freesasa 埋藏面积 + 氢键几何 + Boltz-2 affinity 概率 | sc / ddG / SAP |
+
+Rosetta 项通过 `configs/filters/rosetta_profile.yaml` 覆盖启用；
+启用后 `DesignRecord.toolchain_license = "pyrosetta-dependent"`，便于赛后按许可分类处置。
 
 | 环节 | Rosetta 方案 | 无 Rosetta 替代 |
 |---|---|---|

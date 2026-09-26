@@ -22,10 +22,12 @@ modality:
 
 budget:
   generate_total: 3000          # 该靶点候选生成总量(三条管线合计)
-  pipeline_mix:                 # 生成配额分配
-    boltzgen: 0.4
-    bindcraft: 0.3
-    rfantibody: 0.3
+  # 默认栈全 Rosetta-free(公司内可直接复用); bindcraft/rfantibody 需 PyRosetta 商业授权,
+  # 仅在 configs/filters/rosetta_profile.yaml 启用且已取得授权时才加入 mix。
+  pipeline_mix:
+    boltzgen: 0.50              # MIT: 蛋白/多肽/nanobody 全能
+    rfdiffusion: 0.30           # BSD-3(含权重): 骨架生成 + ProteinMPNN 设序
+    optimize_loop: 0.20         # predictor-guided 进化精修(2025 榜单: 迭代优于单次)
   validation_predictors: [boltz2, af2multimer]   # 强制双家一致
   submit_quota: 100             # 该靶点最终提交条数(待官方确认每队上限)
   diversity_cluster_tm: 0.6     # TM-score 聚类阈值, 保证拓扑多样性

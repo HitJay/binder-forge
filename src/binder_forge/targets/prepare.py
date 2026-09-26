@@ -2,7 +2,7 @@
 
 输入 configs/targets/<id>.yaml, 输出标准化靶点 PDB + 表位标注:
   1) 结构获取: 实验 PDB > AFDB > 本地 Boltz-2/AF3 预测(低置信区截断或告警)
-  2) 清洗: 去无关链/配体/水, 补全缺失侧链(Rosetta 或 pdbfixer)
+  2) 清洗: 去无关链/配体/水, 补全缺失侧链(pdbfixer/OpenMM, 不用 Rosetta)
   3) 截断: 大靶点保留结合域(降低算力与假象风险)
   4) 表位分析(mode=auto): 表面可及性扫描 -> 功能位点优先(已知配体界面/
      受体结合区), 排除糖基化位点与高柔性环, 产出 hotspot 候选供确认

@@ -21,9 +21,11 @@
                           ▼
    ┌────────────────────────────────────────────────────┐
    │ 2. generate (design/ adapters, 并行)                │
-   │    ├─ BoltzGen     (nanobody-anything / protein)   │
-   │    ├─ BindCraft    (AF2-backprop hallucination)    │
-   │    └─ RFantibody   (VHH CDR 设计, 需 hotspot)       │
+   │    ├─ BoltzGen     (MIT: 蛋白/多肽/nanobody)       │
+   │    ├─ RFdiffusion  (BSD-3 含权重) + ProteinMPNN    │
+   │    ├─ RFantibody   (VHH 生成模块; 打分走 physics)  │
+   │    └─ optimize_loop (predictor-guided 进化精修)    │
+   │    ※ BindCraft 需 Rosetta 商业授权, 默认关闭       │
    └──────────────────────┬─────────────────────────────┘
                           ▼  候选池 10^3–10^4 / 靶点 → Design Registry (DuckDB)
    ┌────────────────────────────────────────────────────┐
@@ -65,7 +67,12 @@ forge export    --target configs/targets/T01.yaml --out runs/T01/submission
 
 ## 设计原则
 
-- **Adapter 模式**：不重写外部工具，统一契约 = 序列 + 结构 + 指标 JSON；新管线（如未来的 BindCraft2/Chai 系开源）只需新增一个适配器。
+- **Rosetta-free 默认栈（公司内可直接复用）**：BoltzGen(MIT) + RFdiffusion(BSD-3) + ProteinMPNN(MIT)
+  + Boltz-2(MIT) + OpenMM(MIT/LGPL) + freesasa(MIT)。
+  Rosetta 专属指标（sc / ddG / SAP）与 BindCraft 默认关闭，取得 UW 商业授权后用
+  `configs/filters/rosetta_profile.yaml` 覆盖启用，并在 `DesignRecord.toolchain_license`
+  标记 `pyrosetta-dependent`。详见 `docs/licenses.md`。
+- **Adapter 模式**：不重写外部工具，统一契约 = 序列 + 结构 + 指标 JSON；新管线只需新增一个适配器。
 - **Config-driven**：靶点即配置，换靶点/换任务不改代码——这是复用性的基础。
 - **Design Registry**：每条设计 UUID + 血缘（pipeline/seed/config hash）+ 全指标，落 DuckDB，赛后复盘与 Benchmark 复用的核心资产。
 - **交叉验证防对抗序列**：单预测器（尤其 AF2-only）筛选会选出对抗性序列，强制双家一致。

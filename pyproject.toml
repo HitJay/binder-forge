@@ -22,6 +22,12 @@ dependencies = [
     "pydantic",
 ]
 
+[project.optional-dependencies]
+# Rosetta-free 物理打分(默认栈需要)
+physics = ["openmm", "openmmforcefields", "freesasa"]
+# 可选: Rosetta 增强(pyrosetta 不在 PyPI, 需从 RosettaCommons 获取并遵守授权)
+# rosetta = []
+
 [project.scripts]
 forge = "binder_forge.cli:app"
 

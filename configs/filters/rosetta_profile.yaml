@@ -1,0 +1,17 @@
+# Rosetta 增强配置(可选, 默认不启用)
+# 适用: 已取得 UW / RosettaCommons 商业授权, 或纯学术研究场景。
+# 用法: 与 default.yaml 合并覆盖(后加载者胜), 启用 Rosetta 专属物理指标。
+#
+# ⚠️ 启用后产出的设计带有 PyRosetta 血缘, 商业化前需确认授权范围。
+extends: default.yaml
+
+interface_physics:
+  shape_complementarity: { screen: 0.55, select: 0.60, enabled: true }   # Rosetta sc
+  dG_separated:          { screen: -20,  select: -30,  enabled: true }   # Rosetta ddG
+  sap_score:             { screen: 20,   select: 10,   enabled: true }   # 聚集倾向(SAP)
+
+relax:
+  engine: pyrosetta        # pyrosetta | openmm
+  fastrelax_iters: 200
+
+license_flag: "pyrosetta-dependent"   # 写入 DesignRecord.toolchain_license

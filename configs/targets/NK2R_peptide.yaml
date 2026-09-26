@@ -37,10 +37,10 @@ budget:
   generate_total: 5000          # 多肽生成成本低, 放大池子
   pipeline_mix:                 # 校准(2025 实测): 单次生成活性率 5-8%, 迭代循环 42-65%
     optimize_loop: 0.40         # predictor-guided 进化优化(见 design/optimize.py) — 主力
-    boltzgen_peptide: 0.25      # peptide-anything 协议
-    bindcraft_peptide: 0.15     # BindCraft 肽适配(MDM2/WDR5 已验证可行)
-    rfdiffusion_peptide: 0.10
-    pharmacophore_mimic: 0.10   # NKA C端药效团骨架跃迁(校准: 52% 活性 vs 0% 无活性)
+    boltzgen_peptide: 0.30      # peptide-anything 协议(MIT)
+    rfdiffusion_peptide: 0.15   # BSD-3, 含权重
+    pharmacophore_mimic: 0.15   # NKA C端药效团骨架跃迁(校准: 52% 活性 vs 0% 无活性)
+    # bindcraft_peptide: 0.15   # ⚠️ 依赖 PyRosetta, 商业授权后由 rosetta_profile 启用
   optimize:                     # 迭代优化循环参数(design/optimize.py)
     rounds: 6
     population: 256
