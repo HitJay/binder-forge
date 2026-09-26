@@ -71,6 +71,18 @@ forge export    --target configs/targets/T01.yaml --out runs/T01/submission
 - **交叉验证防对抗序列**：单预测器（尤其 AF2-only）筛选会选出对抗性序列，强制双家一致。
 - **表达先于结合**：可开发性（无游离 Cys、无 NG/NS/N-X-S/T、低聚集）是硬门槛。
 
+## 当前状态（2026-09-26）
+
+| 职能 | 位置 | 状态 |
+|---|---|---|
+| 编排 / 分析 / 过滤配置 / 校准分析 | **本机 Windows** | ✅ 已完成 |
+| 生成管线（BoltzGen / BindCraft / RFantibody） | **HPC / 云** | ⏳ 建库中（`docs/hpc_setup.md`）|
+| 复折验证（AF3 / Boltz-2） | **HPC / 云** | ⏳ |
+
+> 本机结论：Windows + RTX 5060(8GB) 不适合跑 GPU 管线——CUDA torch 轮子下载受阻、
+> PyRosetta 无 Windows 版、boltz 要求 py<3.13。本机保留编排与数据分析职能，
+> 重活走 HPC（见 `docs/hpc_setup.md`），踩坑记录见 `docs/env_setup.md`。
+
 ## 里程碑（长江杯 campaign）
 
 - M0 (2026-10-31 前): EGFR 彩排跑通，报名完成
