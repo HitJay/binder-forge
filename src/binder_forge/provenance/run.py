@@ -134,9 +134,19 @@ class RunContext:
         config_hash: str | None = None,
         repo_root: str | Path | None = None,
         run_id: str | None = None,
+        code_rev: str | None = None,
+        code_dirty: bool | None = None,
     ) -> "RunContext":
-        """开一次新 run：建目录、写初始 manifest（started_at，ended_at 留给 seal）。"""
+        """开一次新 run：建目录、写初始 manifest（started_at，ended_at 留给 seal）。
+
+        code_rev / code_dirty 可手工覆盖：HPC 上常常拿不到 git 仓库（只同步了代码快照），
+        此时由提交方自己 pin 版本号，比让 manifest 留空强。
+        """
         rev, dirty = git_state(repo_root or Path.cwd())
+        if code_rev is not None:
+            rev = code_rev
+        if code_dirty is not None:
+            dirty = code_dirty
         if run_id is None:
             token = STAGE_TOKENS.get(stage, stage[:4])
             stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%MZ")

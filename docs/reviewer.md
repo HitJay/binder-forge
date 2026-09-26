@@ -34,14 +34,14 @@ Anthropic 文档把它的 reviewer 描述为"比对 Claude 的回答、计划、
 | R2 | 序列自洽 | `length == len(sequence)`；字母表为天然 aa；长度落在 target `modality.binder_length` 区间内 | BLOCK |
 | R3 | 结构存在 | `structure_path` 存在、非空、扩展名合法（pdb/cif） | BLOCK |
 | R4 | 序列-结构一致 | 从 PDB 提取 binder 链残基（三字母→单字母）与 `sequence` 比对 | BLOCK |
-| R5 | 指标重算 | 从 `predictor_outputs` 原始文件重新解析 pLDDT / i_pTM / i_PAE，与 `metrics` 比对，容差 1e-3 | BLOCK |
+| R5 | 指标重算 | 从 `predictor_outputs` 原始文件重新解析 pLDDT / i_pTM / i_PAE，与 `metrics` 比对，容差 1e-3；**有输出但不一致 → BLOCK，缺输出 → WARN**（早期阶段 INFO） | BLOCK / WARN |
 | R6 | 阈值重放 | 用 `configs/filters/*.yaml` 重算 `passed_screen` / `passed_select`，与库内布尔值比对 | BLOCK |
 | R7 | 交叉验证口径 | `predictors_agreeing` 与实测达标数一致；`< min_agreeing` 却 `passed_screen=True` | BLOCK |
 | R8 | 许可合规 | `pipeline` 与 `toolchain_license` 匹配（bindcraft → 必须 `pyrosetta-dependent`）；Rosetta 指标键出现但 `rosetta_profile` 未启用 | BLOCK |
-| R9 | 溯源对账 | `artifact_hashes` 内每个 sha256 与磁盘当前文件重算值一致（覆盖/篡改检测） | BLOCK |
+| R9 | 溯源对账 | run 级：`verify_artifacts()` 重算全部已登记产物；记录级：`artifact_hashes` 逐项重算。覆盖/篡改/丢失均检出 | BLOCK |
 | R10 | 代码可 pin | `code_rev` 非空且 `code_dirty=false` | WARN（export 时升级 BLOCK） |
 | R11 | 聚类/配额自洽 | `selected` 条数 ≤ quota；同 `cluster_id` 内不得超额；`selected=True` 必须有 `cluster_id` | BLOCK |
-| R12 | 提交包一致 | export 的 FASTA 序列集合 == `selected` 集合；结构文件齐全；方法文档的许可标注与实际一致 | BLOCK |
+| R12 | 提交包一致 | export 的 FASTA 序列集合 == `selected` 集合；入选设计结构齐全；方法文档的许可标注与实际一致。**仅在 `--stage export` 或给了 `--submission` 时执行** | BLOCK |
 | R13 | 重复提交 | `selected` 集合内无重复序列（`submit_early` 先到先得场景下，重复即浪费配额） | WARN |
 
 R8 是 `tests/test_no_rosetta.py` 的**数据层补充**：那个测试守住源码与配置，R8 守住跑出来的数据。
@@ -108,3 +108,33 @@ forge review --target ... --stage export --fail-on block           # export 前�
 - 不做"方法是否得当"的判断（该由人负责，R 层的职责是事实一致性）
 - 不做图表/文稿排版校对
 - 不替代湿实验验证——所有指标仍是计算预测，reviewer 只保证"记录的数字确实是跑出来的那个数字"
+
+## 7. 落地状态（P1–P4，2026-09-26 全部完成）
+
+代码：`src/binder_forge/review/`（`finding` / `context` / `predictors` / `checks` /
+`report` / `runner` / `semantic`）+ `cli.py::review` + `submit/export.py` 门禁。
+测试：`tests/test_review.py`（10 项）+ `tests/fixtures.py`（合成错误探针）。
+
+实现中相对原计划的三处调整，都是有意为之：
+
+1. **R5 分档**：缺 predictor 原始输出报 WARN（早期阶段 INFO），只有"有输出却对不上"才是 BLOCK。
+   一刀切 BLOCK 会让尚未跑复折的生成池刷满 BLOCK，门禁就没人用了。
+2. **`--stage` 是复核范围，不是 registry 过滤**：复核始终取该靶点全部记录。
+   按阶段过滤会把没写 `stage` 的旧行整批漏掉 —— 那正是最该被复核的数据。
+3. **export 门禁是"先建包、后复核"**：因为 R12 校验的就是这个包，不建出来没得查。
+   判定 BLOCK 时包保留在原处（便于排查），打 `.UNVERIFIED` 标记；通过则打 `.VERIFIED`。
+   `--allow-blocked` 可强行出包，默认关闭。
+
+另外两个实现细节值得记一笔：
+
+- `registry.query_target` 走 pandas，SQL NULL 会变成 `NaN`，直接喂给 `Path()` 会炸；
+  已在 `build_context` 统一还原成 `None`。
+- 规则执行抛异常不会让复核静默通过 —— 会被捕获并转成一条 INFO（"这条规则没跑完"），
+  沉默不等于通过在这套代码里是硬约束。
+
+### P4 语义层的边界
+
+`review/semantic.py` 只提供接口 + `DisabledSemanticReviewer`（默认）。启用需显式
+`--semantic --semantic-endpoint <url>`，走 stdlib urllib，不引入任何模型 SDK；
+端点返回的 finding **一律降级为 INFO**，永远不参与 `--fail-on` 判定。
+默认路径不发任何网络请求，这一点由测试用 monkeypatch 钉死。

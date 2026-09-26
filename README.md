@@ -66,8 +66,9 @@ forge review    --target configs/targets/T01.yaml --fail-on block   # export 前
 forge export    --target configs/targets/T01.yaml --out runs/T01/submission
 ```
 
-> `forge review` 是自建的产物溯源 + 事实一致性校验器（替代已评估但不可采购的 Claude Science），
-> 设计见 `docs/reviewer.md`，溯源规范见 `docs/provenance.md`。
+> `forge review` 是自建的产物溯源 + 事实一致性校验器（替代已评估但不可采购的 Claude Science）：
+> 13 条规则（指标重算 / 阈值重放 / 哈希对账 / 许可合规 / 提交包一致…），有 BLOCK 即退出码 1，
+> 并作为 `forge export` 的强制门禁。设计见 `docs/reviewer.md`，溯源规范见 `docs/provenance.md`。
 
 ## 项目策略：Rosetta-free（硬性，非偏好）
 
@@ -98,8 +99,8 @@ forge export    --target configs/targets/T01.yaml --out runs/T01/submission
 | 编排 / 分析 / 过滤配置 / 校准分析 | **本机 Windows** | ✅ 已完成 |
 | 生成管线（BoltzGen / BindCraft / RFantibody） | **HPC / 云** | ⏳ 建库中（`docs/hpc_setup.md`）|
 | 复折验证（AF3 / Boltz-2） | **HPC / 云** | ⏳ |
-| 产物溯源骨架（`provenance/run.py`，P0） | **本机 Windows** | ✅ 已完成 |
-| reviewer 校验器（P1–P3） | **本机 Windows** | ⏳ 待实现（`docs/reviewer.md`）|
+| 产物溯源骨架（`provenance/`，P0） | **本机 Windows** | ✅ 已完成 |
+| reviewer 校验器 R1–R13 + `forge review`（P1–P4） | **本机 Windows** | ✅ 已完成（22 项测试全绿）|
 
 > 本机结论：Windows + RTX 5060(8GB) 不适合跑 GPU 管线——CUDA torch 轮子下载受阻、
 > PyRosetta 无 Windows 版、boltz 要求 py<3.13。本机保留编排与数据分析职能，
