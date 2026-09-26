@@ -36,9 +36,32 @@ C:/Users/Jay/.workbuddy/binaries/python/envs/boltz/Scripts/python.exe \
 
 5. **VPN（柠檬树）**：本地代理端口未知（已探测 7890/7897/10809/10808/1080/8889/2080/33210 均无监听）。
    如需使用请在客户端"系统代理/端口设置"查看后 `export HTTPS_PROXY=http://127.0.0.1:<port>`。
-6. **WSL**：沙箱安全策略拦截 wsl.exe（程序黑名单），需用户手动在 PowerShell 执行。
+6. **WSL**：沙箱安全策略拦截 wsl.exe（程序黑名单，bash/PowerShell 均被拦；可到
+   **Security Center → Command Security → Program Blacklist** 移除 wsl.exe 后授权我直接驱动）。
+   未放行时请用户手动执行 `scripts/wsl_setup.sh`（WSL Ubuntu 内一键全链路）。
+   ⚠️ 该策略明确禁止"等价绕过"，因此不能用 ubuntu.exe 等方式变相调用。
 
-## 本机 Windows 原生路径（已完成）
+## ✅ 推荐路径：WSL Ubuntu（Linux 原生，三条管线都能跑）
+
+前提：Windows 驱动 576.49 已满足 WSL2 GPU 直通（≥515 即可）；仓库放在 Windows 侧，
+WSL 通过 `/mnt/c/...` 直接读写，**无需复制代码**。
+
+```bash
+# 在 WSL Ubuntu 终端内一键执行：
+bash /mnt/c/Users/Jay/WorkBuddy/深度调研/binder-forge/scripts/wsl_setup.sh
+```
+
+脚本会完成：GPU 自检 → Miniconda → `boltz` 环境（CUDA torch，含 CUDA 可用性断言）→
+`boltzgen` 环境 → mmseqs2（apt）→ 克隆 BindCraft / RFantibody →
+把 WSL 内 Python 路径写回 `envs_wsl.env`（供 Windows 侧适配器调用）。
+
+需人工补一步：PyRosetta 学术许可（BindCraft 依赖）
+<https://els2.comotion.uw.edu/product/pyrosetta>，拿到 .whl 后执行
+`bash ~/binder/BindCraft/install_bindcraft.sh --cuda 12.8 --pkg_manager conda`。
+
+> 若希望我直接驱动 WSL：Security Center → Command Security → Program Blacklist → 移除 wsl.exe。
+
+### 补充：本机 Windows 原生可做/不可做
 
 ```bash
 # 编排层
