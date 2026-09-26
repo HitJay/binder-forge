@@ -50,9 +50,51 @@ Rosetta 项通过 `configs/filters/rosetta_profile.yaml` 覆盖启用；
 **结论**：若目标是"赛后成果可商业化"，主推 **BoltzGen + Boltz-2 + ProteinMPNN + OpenMM** 这条全 MIT/GPL 兼容栈；
 BindCraft/RFantibody 作为**学术期**的性能上限工具（BindCraft 平均 46.3% 命中率仍是最强），商用时再替换其 Rosetta 环节或补授权。
 
-## 4. 行动项
+## 4. PyRosetta 许可申请流程（2026-09 核实）
 
-- [ ] 若以公司主体参赛：向 UW CoMotion 询价 Rosetta 商业许可，或改用 BoltzGen 主线
-- [ ] 若以高校/个人学术身份：申请学术 PyRosetta 许可（免费），当前栈可直接用
+### ⚠️ 重要变化：学术许可通道已暂停
+Rosetta 仓库 2026-05 更新 LICENSE.md 明示：
+> "The academic Rosetta / PyRosetta license has been **temporarily removed** from the GitHub site
+> **on 4/1/2026** to comply with University of Washington **export control review** process.
+> Users seeking academic licenses should contact **license@uw.edu**, who will provide instructions."
+
+→ 也就是说：老的在线填表通道（`https://els.comotion.uw.edu/licenses/88`）目前不可用，
+**第一步是发邮件给 license@uw.edu 索取指引**。
+
+### A. 学术 / 非营利（免费）
+条件（许可原文）：非营利研究机构、政府实验室、大学雇员；**且排除** (a) 商业服务、
+(b) IP 归营利公司所有的合同研究、(c) 为/代表营利实体的使用、(d) 指向商业利益或报酬的使用。
+
+1. 发邮件至 `license@uw.edu` 说明机构 + 用途，索取学术许可指引
+2. 按回执填写（机构邮箱，勿用 Gmail/163 等免费邮箱，易被自动拒）
+3. 获批后邮件收到用户名/密码 → 安装：
+   ```bash
+   pip install pyrosetta --find-links https://west.rosettacommons.org/pyrosetta/quarterly/release
+   # 备用源: https://graylab.jhu.edu/download/PyRosetta4/archive/release-quarterly/release
+   ```
+4. HPC 上使用（TACC 类）：先持证再向集群管理员申请模块授权。
+
+### B. 商业 / 公司使用（付费）
+- **前提**：PyRosetta 依附于 Rosetta 本体（Technology No. 45395），需先有 Rosetta 许可。
+- 定价按**公司全球 FTE 总数**（不是用户数），三档协议（从 <https://els2.comotion.uw.edu/product/pyrosetta> 下载 PDF）：
+  - `<200 FTE` — Commercial
+  - `200+ FTE` — Commercial
+  - `200+ FTE` — **首次许可：首年 30% ramp fee，之后全额**
+- 流程：下载协议 PDF → 填公司信息 + 签字 → 发 `license@uw.edu` 终审签字。
+  ⚠️ UW **不接受修改协议条款**，按原文签署。
+- ⚠️ **中国实体（含中国香港，不含中国台湾）/ 伊朗 / 朝鲜 / 俄罗斯 / 叙利亚**：
+  UW 需额外审查，**多预留 1 个月**（部分页面提示两个月）处理时间。
+- 商业场景也可考虑云版 Cyrus Bench（<https://cyrusbio.com>，已含许可的云端 GUI）。
+
+### C. 对我们的影响
+用户明确"以后要在公司用"→ 若以公司主体使用 Rosetta 系工具，**必须走 B 通道**；
+即便现在用学术许可参赛，一旦成果归属公司或用于商业，即越界（学术许可明确排除
+"IP 归营利公司的合同研究"）。因此 **Rosetta-free 默认栈的决策是对的**，
+BindCraft/RFantibody 仅作为学术期可选增强。
+
+## 5. 行动项
+
+- [ ] 若以公司主体参赛：走 B 通道（UW CoMotion，按全球 FTE 定价，中国实体预留 +1 个月审查）；或改用 BoltzGen 主线
+- [ ] 若以高校/个人学术身份：先发邮件给 license@uw.edu 索取学术许可指引（在线通道 2026-04 起暂停）
 - [ ] 核对 AF3 Server / 权重使用条款（若把 AF3 作为官方口径复折）
 - [ ] funnel 的 `DesignRecord` 应记录**每条设计的工具链许可标签**，便于赛后按许可分类处置（已在 design/base.py 预留血缘字段，待加 `license` 字段）
