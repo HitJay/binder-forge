@@ -62,8 +62,12 @@ forge generate  --target configs/targets/T01.yaml --pipelines boltzgen,bindcraft
 forge validate  --target configs/targets/T01.yaml --predictors boltz2,af2
 forge filter    --target configs/targets/T01.yaml --profile configs/filters/vhh.yaml
 forge rank      --target configs/targets/T01.yaml --quota 100 --cluster-tm 0.6
+forge review    --target configs/targets/T01.yaml --fail-on block   # export 前的强制门禁
 forge export    --target configs/targets/T01.yaml --out runs/T01/submission
 ```
+
+> `forge review` 是自建的产物溯源 + 事实一致性校验器（替代已评估但不可采购的 Claude Science），
+> 设计见 `docs/reviewer.md`，溯源规范见 `docs/provenance.md`。
 
 ## 项目策略：Rosetta-free（硬性，非偏好）
 
@@ -94,6 +98,7 @@ forge export    --target configs/targets/T01.yaml --out runs/T01/submission
 | 编排 / 分析 / 过滤配置 / 校准分析 | **本机 Windows** | ✅ 已完成 |
 | 生成管线（BoltzGen / BindCraft / RFantibody） | **HPC / 云** | ⏳ 建库中（`docs/hpc_setup.md`）|
 | 复折验证（AF3 / Boltz-2） | **HPC / 云** | ⏳ |
+| 产物溯源 + reviewer 校验 | **本机 Windows** | ⏳ 待实现（`docs/provenance.md` / `docs/reviewer.md`）|
 
 > 本机结论：Windows + RTX 5060(8GB) 不适合跑 GPU 管线——CUDA torch 轮子下载受阻、
 > PyRosetta 无 Windows 版、boltz 要求 py<3.13。本机保留编排与数据分析职能，
